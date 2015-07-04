@@ -1,14 +1,14 @@
 function Pitch = LidarDataDisplay(DataFile,Params)
 
 if (nargin<2)
-	Params.HorizontalStep = 2;
-	Params.VerticalStep = 2;
+	Params.HorizontalStep = 1;
+	Params.VerticalStep = 1;
 	Params.MinimalDistance = 0.4;
-	Params.MaximalDistance = 12;
-
+	Params.MaximalDistance = 25;
+	Params.DistanceFromAxis = 0.075;
 	%Horizontal selection (in degree)
-	Params.StartAngleHor = -120;
-	Params.FinishAngleHor = 120;
+	Params.StartAngleHor = -20;
+	Params.FinishAngleHor = 20;
 
 	%vertical selection 0 z axis (in degree)
 	Params.StartAngleVer = 0;
@@ -46,6 +46,7 @@ orientationTimeStamp = IMUData.TimeStamp;
 
 if(isfield(IMUData,'Orientation'));
 	orientationMatrix = IMUData.LinearAcceleration;
+	orientationMatrix = IMUData.Orientation;
 	orientation = 1;
 else
 	orientation = 0;
@@ -61,7 +62,7 @@ for i = 1:Params.VerticalStep:size(LidarData.Ranges,1)
 		norm_base = norm([10 0 0]);
 		norm_current = norm([orientationMatrix(idx,1) orientationMatrix(idx,2) orientationMatrix(idx,3)]);
 		pitch = acos(scalar/(norm_base*norm_current));
-		pitch = atan2(orientationMatrix(idx,3),orientationMatrix(idx,1));
+		%pitch = atan2(orientationMatrix(idx,3),orientationMatrix(idx,1));
 	else
 		pitch = IMUData.Angle(idx,1);
 	end
@@ -78,9 +79,9 @@ for i = 1:Params.VerticalStep:size(LidarData.Ranges,1)
 	red  = (distance/maxDistance)';
 	blue = 1 - red;
 	Colours_tmp = [red, zeros(size(red)), blue];
-	x_tmp = distance.*cos(yaw)*sin(pitch);
-	y_tmp = distance.*sin(yaw)*sin(pitch);
-	z_tmp = distance.*cos(yaw)*cos(pitch);
+	x_tmp = distance.*cos(yaw)*sin(pitch) + Params.DistanceFromAxis *sin(pitch);
+	y_tmp = distance.*sin(yaw);%*sin(pitch);
+	z_tmp = distance.*cos(yaw)*cos(pitch)+ Params.DistanceFromAxis *cos(pitch);
 	Colours_tmp = z_tmp';
 	select = x_tmp~=0 | y_tmp~=0 | z_tmp~=0;
 	x_tmp = x_tmp(select);	

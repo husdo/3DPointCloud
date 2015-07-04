@@ -1,6 +1,10 @@
-function [IMUData, LidarData] = AndroidReader(Filename)
+function [IMUData, LidarData] = AndroidReader(Filename,savefile)
 %ANDROIDREADER Summary of this function goes here
 %   Detailed explanation goes here
+
+if(nargin<2)
+	savefile = 0;
+end
 
 angle = importdata([Filename, '.txt']);
 lidar = importdata([Filename, '.csv']);
@@ -18,7 +22,8 @@ LidarData.RangeMax = 60;
 
 IMUData.TimeStamp = angle.data(:,1) - angle.data(1,1);
 IMUData.Angle = angle.data(:,2:end)+ pi/2;
-
-save(Filename,'LidarData','IMUData');
+if(savefile)
+	save(Filename,'LidarData','IMUData');
+end
 end
 
