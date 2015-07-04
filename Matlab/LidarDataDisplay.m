@@ -1,10 +1,10 @@
-function LidarDataDisplay(DataFile,Params)
+function Pitch = LidarDataDisplay(DataFile,Params)
 
 if (nargin<2)
-	Params.HorizontalStep = 1;
-	Params.VerticalStep = 1;
+	Params.HorizontalStep = 2;
+	Params.VerticalStep = 2;
 	Params.MinimalDistance = 0.4;
-	Params.MaximalDistance = 25;
+	Params.MaximalDistance = 12;
 
 	%Horizontal selection (in degree)
 	Params.StartAngleHor = -120;
@@ -15,10 +15,12 @@ if (nargin<2)
 	Params.FinishAngleVer = 180;
 end
 
-if(strcmp(DataFile(end-3:end),'bag'))
+if(strcmp(DataFile(end-2:end),'bag'))
 	[IMUData, LidarData] = bagRead(DataFile);
-else
+elseif(strcmp(DataFile(end-2:end),'mat'))
 	load(DataFile);
+else
+	[IMUData, LidarData] = AndroidReader(DataFile);
 end
 
 LidarData.Ranges(LidarData.Ranges>Params.MaximalDistance) = 0;
@@ -40,18 +42,31 @@ Colours = [];
 figure(1);
 
 zeroVector = [10 0 0];
-orientationMatrix = IMUData.LinearAcceleration;
 orientationTimeStamp = IMUData.TimeStamp;
+
+if(isfield(IMUData,'Orientation'));
+	orientationMatrix = IMUData.LinearAcceleration;
+	orientation = 1;
+else
+	orientation = 0;
+end
 
 for i = 1:Params.VerticalStep:size(LidarData.Ranges,1)
 	i/size(LidarData.Ranges,1) *100
 	[~, idx] = min(abs(orientationTimeStamp - LidarData.TimeStamp(i)));
-	scalar = [10 0 0]...
-		*[orientationMatrix(idx,1) orientationMatrix(idx,2) orientationMatrix(idx,3)]';
-	norm_base = norm([10 0 0]);
-	norm_current = norm([orientationMatrix(idx,1) orientationMatrix(idx,2) orientationMatrix(idx,3)]);
-	pitch = acos(scalar/(norm_base*norm_current));
-	a(i) = pitch;
+	
+	if(orientation)
+		scalar = [10 0 0]...
+			*[orientationMatrix(idx,1) orientationMatrix(idx,2) orientationMatrix(idx,3)]';
+		norm_base = norm([10 0 0]);
+		norm_current = norm([orientationMatrix(idx,1) orientationMatrix(idx,2) orientationMatrix(idx,3)]);
+		pitch = acos(scalar/(norm_base*norm_current));
+		pitch = atan2(orientationMatrix(idx,3),orientationMatrix(idx,1));
+	else
+		pitch = IMUData.Angle(idx,1);
+	end
+	
+	Pitch(i) = pitch;
 	
 %	pitch = -1*(IMUData.Orientation(idx).Y + pi/2);
 	distance = LidarData.Ranges(i,:);
