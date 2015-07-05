@@ -27,7 +27,7 @@ LidarData.RangeMin = LidarCell{1}.RangeMin;
 LidarData.RangeMax = LidarCell{1}.RangeMax;
 	
 for IMUIterator = 1:numel(IMUCell)
-	IMUData.Orientation(IMUIterator,:) = [IMUCell{IMUIterator}.Orientation.X IMUCell{IMUIterator}.Orientation.Y IMUCell{IMUIterator}.Orientation.Z];
+	IMUData.Orientation(IMUIterator,:) = [IMUCell{IMUIterator}.Orientation.X IMUCell{IMUIterator}.Orientation.Y IMUCell{IMUIterator}.Orientation.Z IMUCell{IMUIterator}.Orientation.W];
 	IMUData.LinearAcceleration(IMUIterator,:) = [IMUCell{IMUIterator}.LinearAcceleration.X IMUCell{IMUIterator}.LinearAcceleration.Y IMUCell{IMUIterator}.LinearAcceleration.Z];
 	IMUData.AngularVelocity(IMUIterator,:) = [IMUCell{IMUIterator}.AngularVelocity.X IMUCell{IMUIterator}.AngularVelocity.Y IMUCell{IMUIterator}.AngularVelocity.Z];
 end
