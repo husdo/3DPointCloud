@@ -3,12 +3,12 @@ function Pitch = LidarDataDisplay(DataFile,Params)
 if (nargin<2)
 	Params.HorizontalStep = 1;
 	Params.VerticalStep = 1;
-	Params.MinimalDistance = 2;
-	Params.MaximalDistance = 25;
+	Params.MinimalDistance = 0.4;
+	Params.MaximalDistance = 6;
 	Params.DistanceFromAxis = 0.075;
 	%Horizontal selection (in degree)
-	Params.StartAngleHor = -90;
-	Params.FinishAngleHor = 90;
+	Params.StartAngleHor = -110;
+	Params.FinishAngleHor = 110;
 
 	%vertical selection 0 z axis (in degree)
 	Params.StartAngleVer = 0;
@@ -46,7 +46,7 @@ orientationTimeStamp = IMUData.TimeStamp;
 
 if(isfield(IMUData,'Orientation'));
 	orientationMatrix = IMUData.LinearAcceleration;
-	orientationMatrix = IMUData.Orientation;
+	%orientationMatrix = IMUData.Orientation;
 	orientation = 1;
 else
 	orientation = 0;
@@ -57,11 +57,14 @@ for i = 1:Params.VerticalStep:size(LidarData.Ranges,1)
 	[~, idx] = min(abs(orientationTimeStamp - LidarData.TimeStamp(i)));
 	
 	if(orientation)
-		EulerAngles = SpinCalc('QtoEA321',orientationMatrix(idx,:),1,1);
-		pitch = deg2rad(EulerAngles(2)+90);
-		if(pitch>2*pi)
-			pitch = pitch - 2*pi;
-		end
+% 		scalar = [10 0 0]...
+% 			*[orientationMatrix(idx,1) orientationMatrix(idx,2) orientationMatrix(idx,3)]';
+% 		norm_base = norm([10 0 0]);
+% 		norm_current = norm([orientationMatrix(idx,1) orientationMatrix(idx,2) orientationMatrix(idx,3)]);
+% 		pitch = acos(scalar/(norm_base*norm_current));
+% 		pitch = atan2(orientationMatrix(idx,3),orientationMatrix(idx,1));
+	anyad = (SpinCalc('QtoEA321', IMUData.Orientation(idx,:), 1, 1));
+	pitch = deg2rad(anyad(2) +90);
 	else
 		pitch = IMUData.Angle(idx,1);
 	end

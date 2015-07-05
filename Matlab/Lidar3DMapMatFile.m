@@ -35,13 +35,17 @@ figure(1);
 for i = 1:VerticalStep:size(LidarData.Ranges,1)
 	i/size(LidarData.Ranges,1) *100
 	[~, idx] = min(abs(IMUData.TimeStamp - LidarData.TimeStamp(i)));
-	scalar = [-1 .25 0]...
-		*[IMUData.Orientation(idx,1) IMUData.Orientation(idx, 2) IMUData.Orientation(idx, 3)]'; %dot product with x y z to get the angle between the vectors
-	norm_base = norm([-1 .25 0]);
-	norm_current = norm([IMUData.Orientation(idx,1) IMUData.Orientation(idx,2) IMUData.Orientation(idx,3)]);
-	pitch = acos(scalar/(norm_base*norm_current));
+% 	scalar = [-1 .25 0]...
+% 		*[IMUData.Orientation(idx,1) IMUData.Orientation(idx, 2) IMUData.Orientation(idx, 3)]'; %dot product with x y z to get the angle between the vectors
+% 	norm_base = norm([-1 .25 0]);
+% 	norm_current = norm([IMUData.Orientation(idx,1) IMUData.Orientation(idx,2) IMUData.Orientation(idx,3)]);
+% 	pitch = acos(scalar/(norm_base*norm_current));
+
 	a(i) = pitch
 	
+	
+	[hullam, pitch, hullam] = SpinCalc('QtoEA321', IMUData.Orientation(idx,:), 1, 1);
+
 %	pitch = -1*(IMUData.Orientation(idx).Y + pi/2);
 	distance = LidarData.Ranges(i,:);
 	if(pitch>FinishAngleVer/180*pi || pitch < StartAngleVer/180*pi)
