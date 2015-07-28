@@ -13,9 +13,9 @@ lidarTimeStamp = lidar.data(:,1);
 lidarTimeStamp = lidarTimeStamp(lidarZeroPoint:end) - lidarTimeStamp(lidarZeroPoint);
 lidarData = lidarData(lidarZeroPoint:end,:);
 
-lidarData = lidarData(1:min(end,2000),1:1:end);
+lidarData = lidarData(1:min(end,600),1:1:end);
 %getting rid of not valid measurements
-lidarData(lidarData>10000) = 0;
+lidarData(lidarData>12000) = 0;
 lidarData(lidarData<400) = 0;
 
 %furthest point
@@ -43,8 +43,8 @@ for i = 1:1:size(lidarData,1)
 	red  = (d/maxDistance)';
 	blue = 1 - red;
 	Colours_tmp = [red, zeros(size(red)), blue];
-	x_tmp = d.*cos(yaw)*sin(pitch);
-	y_tmp = d.*sin(yaw)*sin(pitch);
+	y_tmp = d.*cos(yaw)*sin(pitch);
+	x_tmp = d.*sin(yaw);
 	z_tmp = d.*cos(yaw)*cos(pitch) + 1650;
 		
 	%scatter3(x_tmp,y_tmp,z_tmp,1, Colours);
@@ -54,7 +54,7 @@ for i = 1:1:size(lidarData,1)
  	x = [x x_tmp];
  	y = [y y_tmp];
  	z = [z z_tmp];
-	Colours = [Colours; Colours_tmp];
+	Colours = [Colours; z_tmp'];
 end
 	
 L = [x' y' z'];

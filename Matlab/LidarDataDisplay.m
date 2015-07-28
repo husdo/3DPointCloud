@@ -7,11 +7,11 @@ if (nargin<2)
 	Params.MaximalDistance = 20;
 	Params.DistanceFromAxis = 0.075;
 	%Horizontal selection (in degree)
-	Params.StartAngleHor = -70;
-	Params.FinishAngleHor = 70;
+	Params.StartAngleHor = -130;
+	Params.FinishAngleHor = 130;
 
 	%vertical selection 0 z axis (in degree)
-	Params.StartAngleVer = 30;
+	Params.StartAngleVer = 0;
 	Params.FinishAngleVer = 180;
 end
 CameraData = [];
@@ -91,8 +91,8 @@ for i = 1:Params.VerticalStep:size(LidarData.Ranges,1)
 	red  = (distance/maxDistance)';
 	blue = 1 - red;
 	Colours_tmp = [red, zeros(size(red)), blue];
-	x_tmp = distance.*cos(yaw)*sin(pitch) + Params.DistanceFromAxis *sin(pitch);
-	y_tmp = distance.*sin(yaw);%*sin(pitch);
+	y_tmp = distance.*cos(yaw)*sin(pitch) + Params.DistanceFromAxis *sin(pitch);
+	x_tmp = distance.*sin(-yaw);%*sin(pitch);
 	z_tmp = distance.*cos(yaw)*cos(pitch)+ Params.DistanceFromAxis *cos(pitch);
 	%Colours_tmp = z_tmp';
 	select = x_tmp~=0 | y_tmp~=0 | z_tmp~=0;
@@ -104,11 +104,11 @@ for i = 1:Params.VerticalStep:size(LidarData.Ranges,1)
  	x = [x x_tmp];
  	y = [y y_tmp];
  	z = [z z_tmp];
-	Colours = [Colours; Colours_tmp];
+	Colours = [Colours; z_tmp];
 	
-	refreshRate = 5;
+	refreshRate = -1;
 	
-	if(mod(i,refreshRate) == 0)
+	if(mod(i,refreshRate) == -1)
 		showPointCloud([x(:),y(:),z(:),],Colours);
 		
 		xlim([-3 15])
